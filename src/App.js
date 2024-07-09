@@ -51,26 +51,32 @@ const average = arr =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 export default function App() {
+  const [movies, setMovies] = useState(tempMovieData);
+
   return (
     <>
-      <NavBar />
-      <Main />
+      <NavBar movies={movies} />
+      <Main movies={movies} />
     </>
   );
 }
 
-function NavBar() {
+function NavBar({ movies }) {
   return (
     <nav className="nav-bar">
       <Logo />
       <Search />
-      <NumResults />
+      <NumResults movies={movies} />
     </nav>
   );
 }
 
-function NumResults() {
-  <p className="num-results">X </p>;
+function NumResults({ movies }) {
+  return (
+    <p className="num-results">
+      Found <strong>{movies.length}</strong> results
+    </p>
+  );
 }
 
 function Logo() {
@@ -96,30 +102,28 @@ function Search() {
   );
 }
 
-function Main() {
+function Main({ movies }) {
   return (
     <main className="main">
-      <ListBox />
+      <ListBox movies={movies} />
       <WatchedBox />
     </main>
   );
 }
 
-function ListBox() {
+function ListBox({ movies }) {
   const [isOpen1, setIsOpen1] = useState(true);
   return (
     <div className="box">
       <button className="btn-toggle" onClick={() => setIsOpen1(open => !open)}>
         {isOpen1 ? '–' : '+'}
       </button>
-      {isOpen1 && <MovieList />}
+      {isOpen1 && <MovieList movies={movies} />}
     </div>
   );
 }
 
-function MovieList() {
-  const [movies, setMovies] = useState(tempMovieData);
-
+function MovieList({ movies }) {
   return (
     <ul className="list">
       {movies?.map(movie => (
@@ -169,27 +173,29 @@ function WatchedSummary({ watched }) {
   const avgUserRating = average(watched.map(movie => movie.userRating));
   const avgRuntime = average(watched.map(movie => movie.runtime));
 
-  <div className="summary">
-    <h2>Movies you watched</h2>
-    <div>
-      <p>
-        <span>#️⃣</span>
-        <span>{watched.length} movies</span>
-      </p>
-      <p>
-        <span>⭐️</span>
-        <span>{avgImdbRating}</span>
-      </p>
-      <p>
-        <span>🌟</span>
-        <span>{avgUserRating}</span>
-      </p>
-      <p>
-        <span>⏳</span>
-        <span>{avgRuntime} min</span>
-      </p>
+  return (
+    <div className="summary">
+      <h2>Movies you watched</h2>
+      <div>
+        <p>
+          <span>#️⃣</span>
+          <span>{watched.length} movies</span>
+        </p>
+        <p>
+          <span>⭐️</span>
+          <span>{avgImdbRating}</span>
+        </p>
+        <p>
+          <span>🌟</span>
+          <span>{avgUserRating}</span>
+        </p>
+        <p>
+          <span>⏳</span>
+          <span>{avgRuntime} min</span>
+        </p>
+      </div>
     </div>
-  </div>;
+  );
 }
 
 function WatchedMoviesList({ watched }) {
