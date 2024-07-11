@@ -53,41 +53,52 @@ const average = arr =>
 const key = '8d89e8ca';
 
 export default function App() {
+  const [query, setQuery] = useState('inception');
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState(tempWatchedData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const query = 'batman';
+  const tempQuery = 'batman';
 
-  useEffect(function () {
-    async function fetchMovies() {
-      try {
-        setIsLoading(true);
-        const res = await fetch(
-          `http://www.omdbapi.com/?i=tt3896198&apikey=${key}&s=${query}`
-        );
+  useEffect(
+    function () {
+      async function fetchMovies() {
+        try {
+          setError('');
+          setIsLoading(true);
+          const res = await fetch(
+            `http://www.omdbapi.com/?i=tt3896198&apikey=${key}&s=${query}`
+          );
 
-        if (!res.ok)
-          throw new Error('Sometihing went wrong with fetching movies');
+          if (!res.ok)
+            throw new Error('Sometihing went wrong with fetching movies');
 
-        const data = await res.json();
+          const data = await res.json();
 
-        if (data.Response === 'False') throw new Error('Moive not found');
+          if (data.Response === 'False') throw new Error('Moive not found');
 
-        setMovies(data.Search);
-        console.log(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
+          setMovies(data.Search);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
       }
-    }
-    fetchMovies();
-  }, []);
+
+      if (query.length < 3) {
+        setMovies([]);
+        setError('');
+        return;
+      }
+
+      fetchMovies();
+    },
+    [query]
+  );
 
   return (
     <>
-      <NavBar>
+      <NavBar query={query} setQuery={setQuery}>
         <NumResults movies={movies} />
       </NavBar>
 
@@ -123,11 +134,11 @@ function ErrorMessage({ message }) {
   );
 }
 
-function NavBar({ children }) {
+function NavBar({ query, setQuery, children }) {
   return (
     <nav className="nav-bar">
       <Logo />
-      <Search />
+      <Search query={query} setQuery={setQuery} />
       {children}
     </nav>
   );
@@ -150,9 +161,7 @@ function Logo() {
   );
 }
 
-function Search() {
-  const [query, setQuery] = useState('');
-
+function Search({ query, setQuery }) {
   return (
     <input
       className="search"
